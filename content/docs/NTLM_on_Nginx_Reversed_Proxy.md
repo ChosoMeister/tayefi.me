@@ -148,6 +148,8 @@ upstream http_backend {
 
 ---
 
+</div>
+
 ## Works cited
 
 1. Solved: Reverse Proxy to work with NTLM authentication - Experts Exchange, accessed December 30, 2024, [https://www.experts-exchange.com/questions/28068656/Reverse-Proxy-to-work-with-NTLM-authentication.html](https://www.experts-exchange.com/questions/28068656/Reverse-Proxy-to-work-with-NTLM-authentication.html)
@@ -162,5 +164,3 @@ upstream http_backend {
 10. Support NTLM Authentication · Issue #166 · microsoft/reverse-proxy - GitHub, accessed December 30, 2024, [https://github.com/microsoft/reverse-proxy/issues/166](https://github.com/microsoft/reverse-proxy/issues/166)
 11. nginx/openresty reverse proxy ntlm support - GitHub Gist, accessed December 30, 2024, [https://gist.github.com/pohmelie/d1f3ae729472aa652177c2f954bbee08](https://gist.github.com/pohmelie/d1f3ae729472aa652177c2f954bbee08)
 12. K000134604: Configure NTLM on NGINX Plus - MyF5 | Support, accessed December 30, 2024, [https://my.f5.com/manage/s/article/K000134604](https://my.f5.com/manage/s/article/K000134604)
-
-</div>
