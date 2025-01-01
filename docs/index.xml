@@ -9,11 +9,11 @@
     <lastBuildDate>Wed, 01 Jan 2025 13:53:10 +0330</lastBuildDate>
     <atom:link href="/docs/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>NTLM_on_Nginx_Reversed_Proxy</title>
+      <title>احراز هویت NTLM با استفاده از Nginx Reversed Proxy</title>
       <link>/docs/ntlm_on_nginx_reversed_proxy/</link>
       <pubDate>Wed, 01 Jan 2025 13:53:10 +0330</pubDate>
       <guid>/docs/ntlm_on_nginx_reversed_proxy/</guid>
-      <description>احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.</description>
+      <description>مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.</description>
     </item>
   </channel>
 </rss>
