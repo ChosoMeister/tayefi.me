@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>NTLM_on_Nginx_Reversed_Proxy | Mustafa Tayefi</title>
+<meta name="keywords" content="">
+<meta name="description" content="احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.">
+<meta name="author" content="">
+<link rel="canonical" href="/docs/ntlm_on_nginx_reversed_proxy/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d6fcd20a4fb86efa4dfac8ec95da60244cc8871042183da1ef28e3a762ad79c8.css" integrity="sha256-1vzSCk&#43;4bvpN&#43;sjsldpgJEzIhxBCGD2h7yjjp2Ktecg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/docs/ntlm_on_nginx_reversed_proxy/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+  
+
+<meta property="og:url" content="/docs/ntlm_on_nginx_reversed_proxy/">
+  <meta property="og:site_name" content="Mustafa Tayefi">
+  <meta property="og:title" content="NTLM_on_Nginx_Reversed_Proxy">
+  <meta property="og:description" content="احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+    <meta property="article:published_time" content="2025-01-01T13:53:10+03:30">
+    <meta property="article:modified_time" content="2025-01-01T13:53:10+03:30">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NTLM_on_Nginx_Reversed_Proxy">
+<meta name="twitter:description" content="احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Docs",
+      "item": "/docs/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "NTLM_on_Nginx_Reversed_Proxy",
+      "item": "/docs/ntlm_on_nginx_reversed_proxy/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "NTLM_on_Nginx_Reversed_Proxy",
+  "name": "NTLM_on_Nginx_Reversed_Proxy",
+  "description": "احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود.",
+  "keywords": [
+    
+  ],
+  "articleBody": "احراز هویت NTLM با استفاده از Nginx Reversed Proxy مقدمه احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. Nginx Plus نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود. با استفاده از Nginx Reversed Proxy، می‌توانید ترافیک ورودی را به سرورهای backend هدایت کنید و از مزایای مختلفی مانند افزایش امنیت، بهبود عملکرد و مدیریت ترافیک بهره‌مند شوید.\nنکته: NTLM یک پروتکل قدیمی است و ممکن است در برابر حملات آسیب‌پذیر باشد [1]. بنابراین، در صورت امکان، بهتر است از پروتکل‌های احراز هویت جدیدتر و امن‌تر مانند Kerberos استفاده کنید.\nروش‌های پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy 1. استفاده از Nginx Plus NGINX Plus نسخه تجاری Nginx است که از ماژول ntlm پشتیبانی می‌کند [2]. این ماژول به شما امکان می‌دهد تا به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیکربندی کنید. برای استفاده از این ماژول، کافی است دستور ntlm را در بلوک upstream پیکربندی Nginx اضافه کنید. به عنوان مثال:\nupstream http_backend { server 127.0.0.1:8080; ntlm; } توجه داشته باشید که Nginx Plus یک نسخه تجاری است و برای استفاده از آن باید هزینه پرداخت کنید [2].\n2. استفاده از ماژول‌های شخص ثالث اگر از Nginx Plus استفاده نمی‌کنید، می‌توانید از ماژول‌های شخص ثالث برای پیاده‌سازی احراز هویت NTLM استفاده کنید. یکی از این ماژول‌ها، nginx-ntlm-module است که توسط Gabriel Hodoroaga توسعه یافته است [2]. این ماژول عملکرد مشابهی با ماژول ntlm در Nginx Plus ارائه می‌دهد.\nبرای استفاده از این ماژول، باید آن را از سورس کد کامپایل کنید و به Nginx اضافه کنید [3]. پس از نصب، می‌توانید دستور ntlm را در بلوک upstream پیکربندی Nginx اضافه کنید.\nتوجه داشته باشید که استفاده از ماژول‌های شخص ثالث ممکن است با خطراتی همراه باشد و باید با دقت انجام شود [3].\n3. استفاده از Lua یکی دیگر از روش‌های پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy، استفاده از Lua است. Lua یک زبان برنامه‌نویسی سبک و قدرتمند است [4] که می‌تواند برای پیاده‌سازی قابلیت‌های مختلف در Nginx استفاده شود [4]. برای پیاده‌سازی احراز هویت NTLM با Lua، می‌توانید از کتابخانه lua-resty-ntlm استفاده کنید [5]. این کتابخانه به شما امکان می‌دهد تا به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیاده‌سازی کنید.\nمراحل کلی: نصب OpenResty\nبرای استفاده از lua-resty-ntlm، ابتدا باید OpenResty را نصب کنید. OpenResty یک توزیع Nginx است که شامل LuaJIT و ماژول‌های Lua مختلف است. برای نصب OpenResty در ویندوز، می‌توانید مراحل زیر را دنبال کنید [7]:\nبه وب‌سایت OpenResty بروید و به بخش “Download” بروید. نسخه ویندوز را که با معماری سیستم شما (32 بیتی یا 64 بیتی) مطابقت دارد، انتخاب کنید. بسته نصب (.exe) را برای OpenResty دانلود کنید. بسته نصب را اجرا کنید و مراحل نصب را دنبال کنید. مطمئن شوید که کامپوننت “Luarocks” را برای پشتیبانی از مدیریت بسته Lua انتخاب کرده‌اید. نصب LuaRocks\nLuaRocks یک مدیر بسته برای Lua است که به شما امکان می‌دهد تا به راحتی کتابخانه‌های Lua را نصب کنید. برای نصب LuaRocks، می‌توانید از دستور زیر استفاده کنید [6]:\nluarocks install lua-resty-ntlm پیکربندی lua-resty-ntlm\nبرای پیکربندی lua-resty-ntlm، می‌توانید از کد Lua زیر در بلوک access_by_lua_block پیکربندی Nginx استفاده کنید [8]:\naccess_by_lua_block { local cache = ngx.shared.ntlm_cache require('ntlm').negotiate(\"ldap://domain.net:389\", cache, 10) } 4. پیکربندی IIS با ARR یکی دیگر از روش‌های پیاده‌سازی احراز هویت NTLM با استفاده از پروکسی معکوس، پیکربندی IIS با ARR (Application Request Routing) است [9]. در این روش، IIS به عنوان پروکسی معکوس عمل می‌کند و احراز هویت NTLM را انجام می‌دهد. برای پیکربندی IIS با ARR، باید Windows Authentication را به صورت global فعال کنید و یک authorization rule برای اجازه دادن به کاربرانی که می‌خواهید از طریق پروکسی معکوس احراز هویت شوند، پیکربندی کنید.\n5. استفاده از Apache با mod_auth_sspi Apache یک وب سرور دیگر است که می‌تواند به عنوان پروکسی معکوس استفاده شود. برای پیاده‌سازی احراز هویت NTLM در Apache، می‌توانید از ماژول mod_auth_sspi استفاده کنید [9]. این ماژول به شما امکان می‌دهد تا احراز هویت NTLM را در Apache پیکربندی کنید.\n6. استفاده از YARP با HttpClient سفارشی YARP (Yet Another Reverse Proxy) یک پروکسی معکوس دیگر است که می‌توانید برای پیاده‌سازی احراز هویت NTLM استفاده کنید [10]. برای انجام این کار، می‌توانید YARP را با یک HttpClient سفارشی پیکربندی کنید که اعتبارنامه‌های NTLM را به سرور backend ارسال می‌کند.\nمحدودیت‌ها استفاده از lua-resty-ntlm با محدودیت‌هایی همراه است. به عنوان مثال، این کد هدرها و بدنه HTTP را تغییر نمی‌دهد، بنابراین اگر location شما در OpenResty سرور NTLM-aware را تقلید نکند، این روش کار نخواهد کرد [11]. همچنین، این کد از timeout برای عملیات خواندن سوکت استفاده می‌کند، بنابراین هر درخواستی نمی‌تواند در زمان کمتری از این timeout انجام شود [11].\nعیب‌یابی مشکلات احراز هویت NTLM با Nginx Reversed Proxy در صورت بروز مشکل در احراز هویت NTLM با Nginx Reversed Proxy، می‌توانید از روش‌های زیر برای عیب‌یابی استفاده کنید:\nفعال کردن لاگ‌ها:\nبا فعال کردن لاگ‌های Nginx، می‌توانید اطلاعات بیشتری در مورد خطاهای رخ داده در حین احراز هویت NTLM به دست آورید [1].\nاستفاده از ابزارهای شبکه:\nبا استفاده از ابزارهایی مانند Wireshark، می‌توانید ترافیک شبکه را بررسی کنید و مشکلات مربوط به احراز هویت NTLM را شناسایی کنید. برای استفاده از Wireshark، باید آن را نصب کنید و سپس ترافیک شبکه را capture کنید. پس از capture کردن ترافیک، می‌توانید آن را برای یافتن خطاهای مربوط به احراز هویت NTLM تجزیه و تحلیل کنید [1].\nبررسی پیکربندی:\nمطمئن شوید که پیکربندی Nginx Reversed Proxy به درستی انجام شده است و تمام پارامترهای لازم برای احراز هویت NTLM تنظیم شده‌اند [1].\nعیب‌یابی مشکلات احراز هویت NTLM ممکن است پیچیده باشد و نیاز به دانش فنی داشته باشد [1].\nبهترین روش‌ها برای پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy پیاده‌سازی احراز هویت NTLM باید با توجه به نیازهای امنیتی و عملکردی برنامه وب انجام شود [8]. در زیر به برخی از بهترین روش‌ها برای پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy اشاره شده است:\nاستفاده از SSL\nبرای افزایش امنیت، از SSL برای رمزگذاری ترافیک بین کلاینت و Nginx Reversed Proxy استفاده کنید [12]. با استفاده از SSL، می‌توانید از استراق سمع و دستکاری داده‌ها در حین انتقال جلوگیری کنید.\nاستفاده از Keepalive\nبرای بهبود عملکرد، از Keepalive برای حفظ اتصالات TCP بین Nginx Reversed Proxy و سرورهای backend استفاده کنید [8]. با استفاده از Keepalive، می‌توانید از ایجاد و بستن مکرر اتصالات TCP جلوگیری کنید و در نتیجه عملکرد برنامه وب را بهبود بخشید.\nاستفاده از Cache\nبرای کاهش بار سرورهای backend، از Cache برای ذخیره پاسخ‌های سرور استفاده کنید [8]. با استفاده از Cache، می‌توانید تعداد درخواست‌هایی که به سرورهای backend ارسال می‌شود را کاهش دهید و در نتیجه عملکرد برنامه وب را بهبود بخشید.\nنتیجه‌گیری در این مقاله، نحوه پیکربندی Nginx Reversed Proxy برای احراز هویت NTLM را بررسی کردیم. با استفاده از روش‌های مختلفی که در این مقاله توضیح داده شد، می‌توانید به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیاده‌سازی کنید و از مزایای مختلفی مانند افزایش امنیت، بهبود عملکرد و مدیریت ترافیک بهره‌مند شوید.\nهر روش پیاده‌سازی احراز هویت NTLM مزایا و معایب خاص خود را دارد. به عنوان مثال، استفاده از Nginx Plus ساده‌ترین روش است، اما نیاز به خرید لایسنس دارد. استفاده از ماژول‌های شخص ثالث رایگان است، اما ممکن است با خطراتی همراه باشد. استفاده از Lua انعطاف‌پذیری بیشتری را ارائه می‌دهد، اما نیاز به دانش برنامه‌نویسی Lua دارد.\nدر نهایت، انتخاب روش مناسب برای پیاده‌سازی احراز هویت NTLM به نیازهای خاص شما بستگی دارد.\nWorks cited Solved: Reverse Proxy to work with NTLM authentication - Experts Exchange, accessed December 30, 2024, https://www.experts-exchange.com/questions/28068656/Reverse-Proxy-to-work-with-NTLM-authentication.html How to use nginx to proxy to a host requiring NTLM authentication? - Server Fault, accessed December 30, 2024, https://serverfault.com/questions/799267/how-to-use-nginx-to-proxy-to-a-host-requiring-ntlm-authentication A nginx module to allow proxying requests with NTLM Authentication. - GitHub, accessed December 30, 2024, https://github.com/gabihodoroaga/nginx-ntlm-module Lua | NGINX Documentation, accessed December 30, 2024, https://docs.nginx.com/nginx/admin-guide/dynamic-modules/lua/ gosp/lua-resty-ntlm: nginx ntlm module implemented by lua - GitHub, accessed December 30, 2024, https://github.com/gosp/lua-resty-ntlm lua-resty-ntlm - LuaRocks, accessed December 30, 2024, https://luarocks.org/modules/gosp/lua-resty-ntlm Nginx Lua Module, accessed December 30, 2024, https://nginxtutorials.com/nginx-lua-module/ session - NGINX Extras Documentation, accessed December 30, 2024, https://nginx-extras.getpagespeed.com/lua/session/ Authenticate NTLM at reverse proxy in front of unauthenticated web servers, accessed December 30, 2024, https://serverfault.com/questions/922725/authenticate-ntlm-at-reverse-proxy-in-front-of-unauthenticated-web-servers Support NTLM Authentication · Issue #166 · microsoft/reverse-proxy - GitHub, accessed December 30, 2024, https://github.com/microsoft/reverse-proxy/issues/166 nginx/openresty reverse proxy ntlm support - GitHub Gist, accessed December 30, 2024, https://gist.github.com/pohmelie/d1f3ae729472aa652177c2f954bbee08 K000134604: Configure NTLM on NGINX Plus - MyF5 | Support, accessed December 30, 2024, https://my.f5.com/manage/s/article/K000134604 ",
+  "wordCount" : "1437",
+  "inLanguage": "en",
+  "datePublished": "2025-01-01T13:53:10+03:30",
+  "dateModified": "2025-01-01T13:53:10+03:30",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/docs/ntlm_on_nginx_reversed_proxy/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Mustafa Tayefi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="Mustafa Tayefi (Alt + H)">Mustafa Tayefi</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      NTLM_on_Nginx_Reversed_Proxy
+    </h1>
+    <div class="post-meta"><span title='2025-01-01 13:53:10 +0330 +0330'>January 1, 2025</span>
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="احراز-هویت-ntlm-با-استفاده-از-nginx-reversed-proxy">احراز هویت NTLM با استفاده از Nginx Reversed Proxy<a hidden class="anchor" aria-hidden="true" href="#احراز-هویت-ntlm-با-استفاده-از-nginx-reversed-proxy">#</a></h1>
+<h2 id="مقدمه">مقدمه<a hidden class="anchor" aria-hidden="true" href="#مقدمه">#</a></h2>
+<p>احراز هویت NTLM یک پروتکل احراز هویت چالش-پاسخ است که توسط مایکروسافت توسعه یافته و معمولاً در شبکه‌های ویندوزی استفاده می‌شود. این پروتکل از روش‌های مختلفی برای احراز هویت، از جمله هش رمز عبور، استفاده می‌کند و به کاربران اجازه می‌دهد تا به منابع شبکه دسترسی پیدا کنند [1]. <strong>Nginx Plus</strong> نسخه تجاری Nginx است [2] که یک وب سرور قدرتمند و پرکاربرد است و می‌تواند به عنوان یک پروکسی معکوس برای برنامه‌های وب استفاده شود. با استفاده از <strong>Nginx Reversed Proxy</strong>، می‌توانید ترافیک ورودی را به سرورهای backend هدایت کنید و از مزایای مختلفی مانند افزایش امنیت، بهبود عملکرد و مدیریت ترافیک بهره‌مند شوید.</p>
+<blockquote>
+<p><strong>نکته</strong>: NTLM یک پروتکل قدیمی است و ممکن است در برابر حملات آسیب‌پذیر باشد [1]. بنابراین، در صورت امکان، بهتر است از پروتکل‌های احراز هویت جدیدتر و امن‌تر مانند <strong>Kerberos</strong> استفاده کنید.</p>
+</blockquote>
+<hr>
+<h2 id="روشهای-پیادهسازی-احراز-هویت-ntlm-با-nginx-reversed-proxy">روش‌های پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy<a hidden class="anchor" aria-hidden="true" href="#روشهای-پیادهسازی-احراز-هویت-ntlm-با-nginx-reversed-proxy">#</a></h2>
+<h3 id="1-استفاده-از-nginx-plus">1. استفاده از Nginx Plus<a hidden class="anchor" aria-hidden="true" href="#1-استفاده-از-nginx-plus">#</a></h3>
+<p><strong>NGINX Plus</strong> نسخه تجاری Nginx است که از ماژول <code>ntlm</code> پشتیبانی می‌کند [2]. این ماژول به شما امکان می‌دهد تا به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیکربندی کنید. برای استفاده از این ماژول، کافی است دستور <code>ntlm</code> را در بلوک <code>upstream</code> پیکربندی Nginx اضافه کنید. به عنوان مثال:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">http_backend</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 127.0.0.1:<span style="color:#ae81ff">8080</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ntlm</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>توجه داشته باشید که Nginx Plus یک نسخه تجاری است و برای استفاده از آن باید هزینه پرداخت کنید [2].</p>
+</blockquote>
+<hr>
+<h3 id="2-استفاده-از-ماژولهای-شخص-ثالث">2. استفاده از ماژول‌های شخص ثالث<a hidden class="anchor" aria-hidden="true" href="#2-استفاده-از-ماژولهای-شخص-ثالث">#</a></h3>
+<p>اگر از Nginx Plus استفاده نمی‌کنید، می‌توانید از ماژول‌های شخص ثالث برای پیاده‌سازی احراز هویت NTLM استفاده کنید. یکی از این ماژول‌ها، <code>nginx-ntlm-module</code> است که توسط Gabriel Hodoroaga توسعه یافته است [2]. این ماژول عملکرد مشابهی با ماژول <code>ntlm</code> در Nginx Plus ارائه می‌دهد.</p>
+<p>برای استفاده از این ماژول، باید آن را از سورس کد کامپایل کنید و به Nginx اضافه کنید [3]. پس از نصب، می‌توانید دستور <code>ntlm</code> را در بلوک <code>upstream</code> پیکربندی Nginx اضافه کنید.</p>
+<blockquote>
+<p>توجه داشته باشید که استفاده از ماژول‌های شخص ثالث ممکن است با خطراتی همراه باشد و باید با دقت انجام شود [3].</p>
+</blockquote>
+<hr>
+<h3 id="3-استفاده-از-lua">3. استفاده از Lua<a hidden class="anchor" aria-hidden="true" href="#3-استفاده-از-lua">#</a></h3>
+<p>یکی دیگر از روش‌های پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy، استفاده از <strong>Lua</strong> است. Lua یک زبان برنامه‌نویسی سبک و قدرتمند است [4] که می‌تواند برای پیاده‌سازی قابلیت‌های مختلف در Nginx استفاده شود [4]. برای پیاده‌سازی احراز هویت NTLM با Lua، می‌توانید از کتابخانه <code>lua-resty-ntlm</code> استفاده کنید [5]. این کتابخانه به شما امکان می‌دهد تا به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیاده‌سازی کنید.</p>
+<h4 id="مراحل-کلی">مراحل کلی:<a hidden class="anchor" aria-hidden="true" href="#مراحل-کلی">#</a></h4>
+<ol>
+<li>
+<p><strong>نصب OpenResty</strong><br>
+برای استفاده از lua-resty-ntlm، ابتدا باید OpenResty را نصب کنید. OpenResty یک توزیع Nginx است که شامل LuaJIT و ماژول‌های Lua مختلف است. برای نصب OpenResty در ویندوز، می‌توانید مراحل زیر را دنبال کنید [7]:</p>
+<ol>
+<li>به وب‌سایت OpenResty بروید و به بخش &ldquo;Download&rdquo; بروید.</li>
+<li>نسخه ویندوز را که با معماری سیستم شما (32 بیتی یا 64 بیتی) مطابقت دارد، انتخاب کنید.</li>
+<li>بسته نصب (<code>.exe</code>) را برای OpenResty دانلود کنید.</li>
+<li>بسته نصب را اجرا کنید و مراحل نصب را دنبال کنید.</li>
+<li>مطمئن شوید که کامپوننت &ldquo;<strong>Luarocks</strong>&rdquo; را برای پشتیبانی از مدیریت بسته Lua انتخاب کرده‌اید.</li>
+</ol>
+</li>
+<li>
+<p><strong>نصب LuaRocks</strong><br>
+LuaRocks یک مدیر بسته برای Lua است که به شما امکان می‌دهد تا به راحتی کتابخانه‌های Lua را نصب کنید. برای نصب LuaRocks، می‌توانید از دستور زیر استفاده کنید [6]:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>luarocks install lua-resty-ntlm
+</span></span></code></pre></div></li>
+<li>
+<p><strong>پیکربندی lua-resty-ntlm</strong><br>
+برای پیکربندی lua-resty-ntlm، می‌توانید از کد Lua زیر در بلوک <code>access_by_lua_block</code> پیکربندی Nginx استفاده کنید [8]:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span>access_by_lua_block {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">local</span> cache <span style="color:#f92672">=</span> ngx.shared.ntlm_cache
+</span></span><span style="display:flex;"><span>  require(<span style="color:#e6db74">&#39;ntlm&#39;</span>).negotiate(<span style="color:#e6db74">&#34;ldap://domain.net:389&#34;</span>, cache, <span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h3 id="4-پیکربندی-iis-با-arr">4. پیکربندی IIS با ARR<a hidden class="anchor" aria-hidden="true" href="#4-پیکربندی-iis-با-arr">#</a></h3>
+<p>یکی دیگر از روش‌های پیاده‌سازی احراز هویت NTLM با استفاده از پروکسی معکوس، پیکربندی <strong>IIS با ARR (Application Request Routing)</strong> است [9]. در این روش، IIS به عنوان پروکسی معکوس عمل می‌کند و احراز هویت NTLM را انجام می‌دهد. برای پیکربندی IIS با ARR، باید Windows Authentication را به صورت global فعال کنید و یک authorization rule برای اجازه دادن به کاربرانی که می‌خواهید از طریق پروکسی معکوس احراز هویت شوند، پیکربندی کنید.</p>
+<hr>
+<h3 id="5-استفاده-از-apache-با-mod_auth_sspi">5. استفاده از Apache با mod_auth_sspi<a hidden class="anchor" aria-hidden="true" href="#5-استفاده-از-apache-با-mod_auth_sspi">#</a></h3>
+<p><strong>Apache</strong> یک وب سرور دیگر است که می‌تواند به عنوان پروکسی معکوس استفاده شود. برای پیاده‌سازی احراز هویت NTLM در Apache، می‌توانید از ماژول <code>mod_auth_sspi</code> استفاده کنید [9]. این ماژول به شما امکان می‌دهد تا احراز هویت NTLM را در Apache پیکربندی کنید.</p>
+<hr>
+<h3 id="6-استفاده-از-yarp-با-httpclient-سفارشی">6. استفاده از YARP با HttpClient سفارشی<a hidden class="anchor" aria-hidden="true" href="#6-استفاده-از-yarp-با-httpclient-سفارشی">#</a></h3>
+<p><strong>YARP (Yet Another Reverse Proxy)</strong> یک پروکسی معکوس دیگر است که می‌توانید برای پیاده‌سازی احراز هویت NTLM استفاده کنید [10]. برای انجام این کار، می‌توانید YARP را با یک HttpClient سفارشی پیکربندی کنید که اعتبارنامه‌های NTLM را به سرور backend ارسال می‌کند.</p>
+<hr>
+<h2 id="محدودیتها">محدودیت‌ها<a hidden class="anchor" aria-hidden="true" href="#محدودیتها">#</a></h2>
+<p>استفاده از lua-resty-ntlm با محدودیت‌هایی همراه است. به عنوان مثال، این کد هدرها و بدنه HTTP را تغییر نمی‌دهد، بنابراین اگر location شما در OpenResty سرور NTLM-aware را تقلید نکند، این روش کار نخواهد کرد [11]. همچنین، این کد از timeout برای عملیات خواندن سوکت استفاده می‌کند، بنابراین هر درخواستی نمی‌تواند در زمان کمتری از این timeout انجام شود [11].</p>
+<hr>
+<h2 id="عیبیابی-مشکلات-احراز-هویت-ntlm-با-nginx-reversed-proxy">عیب‌یابی مشکلات احراز هویت NTLM با Nginx Reversed Proxy<a hidden class="anchor" aria-hidden="true" href="#عیبیابی-مشکلات-احراز-هویت-ntlm-با-nginx-reversed-proxy">#</a></h2>
+<p>در صورت بروز مشکل در احراز هویت NTLM با Nginx Reversed Proxy، می‌توانید از روش‌های زیر برای عیب‌یابی استفاده کنید:</p>
+<ol>
+<li>
+<p><strong>فعال کردن لاگ‌ها</strong>:<br>
+با فعال کردن لاگ‌های Nginx، می‌توانید اطلاعات بیشتری در مورد خطاهای رخ داده در حین احراز هویت NTLM به دست آورید [1].</p>
+</li>
+<li>
+<p><strong>استفاده از ابزارهای شبکه</strong>:<br>
+با استفاده از ابزارهایی مانند <strong>Wireshark</strong>، می‌توانید ترافیک شبکه را بررسی کنید و مشکلات مربوط به احراز هویت NTLM را شناسایی کنید. برای استفاده از Wireshark، باید آن را نصب کنید و سپس ترافیک شبکه را capture کنید. پس از capture کردن ترافیک، می‌توانید آن را برای یافتن خطاهای مربوط به احراز هویت NTLM تجزیه و تحلیل کنید [1].</p>
+</li>
+<li>
+<p><strong>بررسی پیکربندی</strong>:<br>
+مطمئن شوید که پیکربندی Nginx Reversed Proxy به درستی انجام شده است و تمام پارامترهای لازم برای احراز هویت NTLM تنظیم شده‌اند [1].</p>
+</li>
+</ol>
+<blockquote>
+<p>عیب‌یابی مشکلات احراز هویت NTLM ممکن است پیچیده باشد و نیاز به دانش فنی داشته باشد [1].</p>
+</blockquote>
+<hr>
+<h2 id="بهترین-روشها-برای-پیادهسازی-احراز-هویت-ntlm-با-nginx-reversed-proxy">بهترین روش‌ها برای پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy<a hidden class="anchor" aria-hidden="true" href="#بهترین-روشها-برای-پیادهسازی-احراز-هویت-ntlm-با-nginx-reversed-proxy">#</a></h2>
+<p>پیاده‌سازی احراز هویت NTLM باید با توجه به نیازهای امنیتی و عملکردی برنامه وب انجام شود [8]. در زیر به برخی از بهترین روش‌ها برای پیاده‌سازی احراز هویت NTLM با Nginx Reversed Proxy اشاره شده است:</p>
+<ol>
+<li>
+<p><strong>استفاده از SSL</strong><br>
+برای افزایش امنیت، از <strong>SSL</strong> برای رمزگذاری ترافیک بین کلاینت و Nginx Reversed Proxy استفاده کنید [12]. با استفاده از SSL، می‌توانید از استراق سمع و دستکاری داده‌ها در حین انتقال جلوگیری کنید.</p>
+</li>
+<li>
+<p><strong>استفاده از Keepalive</strong><br>
+برای بهبود عملکرد، از <strong>Keepalive</strong> برای حفظ اتصالات TCP بین Nginx Reversed Proxy و سرورهای backend استفاده کنید [8]. با استفاده از Keepalive، می‌توانید از ایجاد و بستن مکرر اتصالات TCP جلوگیری کنید و در نتیجه عملکرد برنامه وب را بهبود بخشید.</p>
+</li>
+<li>
+<p><strong>استفاده از Cache</strong><br>
+برای کاهش بار سرورهای backend، از <strong>Cache</strong> برای ذخیره پاسخ‌های سرور استفاده کنید [8]. با استفاده از Cache، می‌توانید تعداد درخواست‌هایی که به سرورهای backend ارسال می‌شود را کاهش دهید و در نتیجه عملکرد برنامه وب را بهبود بخشید.</p>
+</li>
+</ol>
+<hr>
+<h2 id="نتیجهگیری">نتیجه‌گیری<a hidden class="anchor" aria-hidden="true" href="#نتیجهگیری">#</a></h2>
+<p>در این مقاله، نحوه پیکربندی <strong>Nginx Reversed Proxy</strong> برای احراز هویت NTLM را بررسی کردیم. با استفاده از روش‌های مختلفی که در این مقاله توضیح داده شد، می‌توانید به راحتی احراز هویت NTLM را در Nginx Reversed Proxy پیاده‌سازی کنید و از مزایای مختلفی مانند افزایش امنیت، بهبود عملکرد و مدیریت ترافیک بهره‌مند شوید.</p>
+<p>هر روش پیاده‌سازی احراز هویت NTLM مزایا و معایب خاص خود را دارد. به عنوان مثال، استفاده از <strong>Nginx Plus</strong> ساده‌ترین روش است، اما نیاز به خرید لایسنس دارد. استفاده از ماژول‌های شخص ثالث رایگان است، اما ممکن است با خطراتی همراه باشد. استفاده از Lua انعطاف‌پذیری بیشتری را ارائه می‌دهد، اما نیاز به دانش برنامه‌نویسی Lua دارد.</p>
+<p>در نهایت، انتخاب روش مناسب برای پیاده‌سازی احراز هویت NTLM به نیازهای خاص شما بستگی دارد.</p>
+<hr>
+<h2 id="works-cited">Works cited<a hidden class="anchor" aria-hidden="true" href="#works-cited">#</a></h2>
+<ol>
+<li>Solved: Reverse Proxy to work with NTLM authentication - Experts Exchange, accessed December 30, 2024, <a href="https://www.experts-exchange.com/questions/28068656/Reverse-Proxy-to-work-with-NTLM-authentication.html">https://www.experts-exchange.com/questions/28068656/Reverse-Proxy-to-work-with-NTLM-authentication.html</a></li>
+<li>How to use nginx to proxy to a host requiring NTLM authentication? - Server Fault, accessed December 30, 2024, <a href="https://serverfault.com/questions/799267/how-to-use-nginx-to-proxy-to-a-host-requiring-ntlm-authentication">https://serverfault.com/questions/799267/how-to-use-nginx-to-proxy-to-a-host-requiring-ntlm-authentication</a></li>
+<li>A nginx module to allow proxying requests with NTLM Authentication. - GitHub, accessed December 30, 2024, <a href="https://github.com/gabihodoroaga/nginx-ntlm-module">https://github.com/gabihodoroaga/nginx-ntlm-module</a></li>
+<li>Lua | NGINX Documentation, accessed December 30, 2024, <a href="https://docs.nginx.com/nginx/admin-guide/dynamic-modules/lua/">https://docs.nginx.com/nginx/admin-guide/dynamic-modules/lua/</a></li>
+<li>gosp/lua-resty-ntlm: nginx ntlm module implemented by lua - GitHub, accessed December 30, 2024, <a href="https://github.com/gosp/lua-resty-ntlm">https://github.com/gosp/lua-resty-ntlm</a></li>
+<li>lua-resty-ntlm - LuaRocks, accessed December 30, 2024, <a href="https://luarocks.org/modules/gosp/lua-resty-ntlm">https://luarocks.org/modules/gosp/lua-resty-ntlm</a></li>
+<li>Nginx Lua Module, accessed December 30, 2024, <a href="https://nginxtutorials.com/nginx-lua-module/">https://nginxtutorials.com/nginx-lua-module/</a></li>
+<li>session - NGINX Extras Documentation, accessed December 30, 2024, <a href="https://nginx-extras.getpagespeed.com/lua/session/">https://nginx-extras.getpagespeed.com/lua/session/</a></li>
+<li>Authenticate NTLM at reverse proxy in front of unauthenticated web servers, accessed December 30, 2024, <a href="https://serverfault.com/questions/922725/authenticate-ntlm-at-reverse-proxy-in-front-of-unauthenticated-web-servers">https://serverfault.com/questions/922725/authenticate-ntlm-at-reverse-proxy-in-front-of-unauthenticated-web-servers</a></li>
+<li>Support NTLM Authentication · Issue #166 · microsoft/reverse-proxy - GitHub, accessed December 30, 2024, <a href="https://github.com/microsoft/reverse-proxy/issues/166">https://github.com/microsoft/reverse-proxy/issues/166</a></li>
+<li>nginx/openresty reverse proxy ntlm support - GitHub Gist, accessed December 30, 2024, <a href="https://gist.github.com/pohmelie/d1f3ae729472aa652177c2f954bbee08">https://gist.github.com/pohmelie/d1f3ae729472aa652177c2f954bbee08</a></li>
+<li>K000134604: Configure NTLM on NGINX Plus - MyF5 | Support, accessed December 30, 2024, <a href="https://my.f5.com/manage/s/article/K000134604">https://my.f5.com/manage/s/article/K000134604</a></li>
+</ol>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="/">Mustafa Tayefi</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
