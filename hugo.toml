@@ -1,11 +1,5 @@
 baseURL = ''
 [languages]
-  [languages.en]
-    languageCode = 'en-US'
-    languageDirection = 'ltr'
-    languageName = 'English'
-    weight = 1
-[languages]
   [languages.fa]
     languageCode = 'fa-IR'
     languageDirection = 'rtl'
