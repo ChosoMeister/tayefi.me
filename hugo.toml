@@ -1,11 +1,16 @@
 baseURL = ''
-defaultContentLanguage = 'fa'
+defaultContentLanguage = 'en'
 [languages]
+  [languages.en]
+    languageCode = 'en-US'
+    languageDirection = 'ltr'
+    languageName = 'English'
+    weight = 1
   [languages.fa]
     languageCode = 'fa-IR'
     languageDirection = 'rtl'
     languageName = 'Farsi'
-    weight = 1
+    weight = 2
 title = 'Mustafa Tayefi'
 theme = 'PaperMod'
 min_version = '0.125.7'
