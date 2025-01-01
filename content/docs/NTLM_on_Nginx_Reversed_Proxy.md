@@ -1,12 +1,17 @@
 +++
 date = '2025-01-01T13:53:10+03:30'
 draft = false
-title = 'NTLM_on_Nginx_Reversed_Proxy'
+title = 'احراز هویت NTLM با استفاده از Nginx Reversed Proxy'
 +++
 
-<div dir="rtl">
+<style>
+  body {
+    direction: rtl;
+    text-align: right;
+  }
+</style>
 
-# احراز هویت NTLM با استفاده از Nginx Reversed Proxy
+<div dir="rtl">
 
 ## مقدمه
 
