@@ -1,6 +1,6 @@
 +++
 date = '2025-01-01T13:53:10+03:30'
-draft = fals
+draft = false
 title = 'NTLM_on_Nginx_Reversed_Proxy'
 +++
 
