@@ -1,0 +1,84 @@
+baseURL: ""
+title: Mustafa Tayefi
+theme: PaperMod
+
+enableInlineShortcodes: true
+enableRobotsTXT: true
+
+taxonomies:
+  tag: tags
+
+menu:
+  main:
+    - name: Blog
+      url: blog/
+      weight: 2
+
+params:
+  description: "test disc2"
+  author: Mustafa Tayefi
+  DateFormat: "January 2025"
+  defaultTheme: dark
+  hideFooter: false
+  disableThemeToggle: true
+  ShowShareButtons: false
+  ShowReadingTime: false
+  disableSpecial1stPost: true
+  disableAnchoredHeadings: true
+  ShowPostNavLinks: false
+  ShowBreadCrumbs: false
+  ShowCodeCopyButtons: true
+  ShowAllPagesInArchive: false
+  MainSections: ["Blog"]
+  ShowToc: false
+  disableScrollToTop: true
+  TocOpen: true
+  ShowWordCount: false
+  UseHugoToc: true
+  comments: false
+  math: true
+  profileMode:
+    enabled: true
+    title: Mustafa Tayefi
+    subtitle: "Hi there! 👋 I’m passionate about building and optimizing IT solutions that make a real difference. With years of experience in cloud administration, virtual networks, and VoIP integration, I’ve had the privilege of enhancing connectivity and streamlining operations at Orchid Pharmed, ensuring our infrastructure stays ahead of the curve.
+Currently, I’m part of the Axon family, where I focus on supporting critical applications and services in the public safety sector. By embracing DevOps practices, I’m dedicated to creating secure, efficient, and scalable systems that empower teams and drive impactful results.
+When I’m not diving into tech challenges, you can find me exploring new technologies, sharing insights, or collaborating on innovative ideas. I love turning complex problems into seamless solutions that truly work for people.
+Let’s connect and build something amazing together! 🚀"
+    imageUrl: "picture.jpg"
+    imageWidth: 160
+    imageHeight: 160
+    buttons:
+      - name: Blog
+        url: blog/
+
+  socialIcons:
+    - name: Email
+      url: mailto:mustafa@tayefi.me
+    - name: Telegram
+      url: https://www.t.me/tayefi
+    - name: GitHub
+      url: https://github.com/chosomeister
+    - name: Twitter
+      url: https://twitter.com/chosomeister
+
+  assets:
+    disableScrollBarStyle: true
+  cover:
+    hiddenInList: false
+    hiddenInSingle: true
+  label:
+    text: "Mustafa Tayefi"
+    icon: favicon.ico
+    iconHeight: 18
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    guessSyntax: true
+    style: autumn
+  tableOfContents:
+    endLevel: 2
+    ordered: false
+    startLevel: 2
