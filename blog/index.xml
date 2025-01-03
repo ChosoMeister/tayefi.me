@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Mustafa Tayefi</title>
-    <link>/</link>
-    <description>Recent content on Mustafa Tayefi</description>
+    <title>Blogs on Mustafa Tayefi</title>
+    <link>/blog/</link>
+    <description>Recent content in Blogs on Mustafa Tayefi</description>
     <generator>Hugo -- 0.125.7</generator>
     <language>en</language>
     <lastBuildDate>Wed, 01 Jan 2025 13:53:10 +0330</lastBuildDate>
-    <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>احراز هویت NTLM با استفاده از Nginx Reversed Proxy</title>
       <link>/blog/ntlm_on_nginx_reversed_proxy/</link>
